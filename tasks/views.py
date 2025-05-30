@@ -67,86 +67,106 @@ def task_detail(request, task_id):
         )
         
         try:
-            # Save the uploaded file to a temporary location
+            # Get the solution file path
             solution_path = solution.code_file.path
             print(f"Solution path: {solution_path}")  # Debug info
             
-            # Prepare test cases
+            # Get test cases from the task
             test_cases = task.test_cases
-            print(f"Test cases type: {type(test_cases)}")  # Debug info
-            print(f"Test cases content: {test_cases}")  # Debug info
+            print(f"Test cases: {test_cases}")  # Debug info
             
+            # Prepare inputs and expected outputs for run_tests
             inputs = []
-            outputs = []
+            expected_outputs = []
             
-            # Handle both list and dict formats of test cases
-            if isinstance(test_cases, dict):
-                for input_str, output_str in test_cases.items():
-                    inputs.append(convert_to_string(input_str))
-                    outputs.append(convert_to_string(output_str))
-            elif isinstance(test_cases, list):
-                for test_case in test_cases:
-                    if isinstance(test_case, dict):
-                        inputs.append(convert_to_string(test_case.get('input', '')))
-                        outputs.append(convert_to_string(test_case.get('output', '')))
-                    elif isinstance(test_case, (list, tuple)) and len(test_case) >= 2:
-                        inputs.append(convert_to_string(test_case[0]))
-                        outputs.append(convert_to_string(test_case[1]))
+            # Process test cases
+            for test_case in test_cases:
+                # Convert input to string format
+                input_str = convert_to_string(test_case['input'])
+                # Convert expected output to string format
+                expected_str = convert_to_string(test_case['expected_output'])
+                
+                inputs.append(input_str)
+                expected_outputs.append(expected_str)
             
             print(f"Processed inputs: {inputs}")  # Debug info
-            print(f"Processed outputs: {outputs}")  # Debug info
+            print(f"Expected outputs: {expected_outputs}")  # Debug info
             
-            # Run the tests
-            results = run_tests(inputs, outputs, [solution_path], timeout=5, strip=True)
-            print(f"Test results: {results}")  # Debug info
-            
-            # Process results
+            # Run the tests using run_tests.py
             test_results = []
             all_passed = True
             
-            for i, result in enumerate(results[0]):
-                if result is True:
-                    test_results.append({
-                        'test_case': i + 1,
-                        'status': 'passed',
-                        'input': inputs[i],
-                        'expected': outputs[i],
-                        'actual': outputs[i]
-                    })
-                elif isinstance(result, dict):
-                    all_passed = False
-                    test_results.append({
-                        'test_case': i + 1,
-                        'status': 'failed',
-                        'input': inputs[i],
-                        'expected': result.get('expected', ''),
-                        'actual': result.get('actual', '')
-                    })
-                else:
-                    all_passed = False
-                    test_results.append({
-                        'test_case': i + 1,
-                        'status': 'failed',
-                        'input': inputs[i],
-                        'expected': outputs[i],
-                        'actual': str(result)
-                    })
+            try:
+                # Execute tests
+                results = run_tests(inputs, expected_outputs, [solution_path], timeout=5, strip=True)
+                print(f"Raw test results: {results}")  # Debug info
+                
+                # Process results for each test case
+                for i, result in enumerate(results[0]):
+                    test_case = test_cases[i]
+                    
+                    if isinstance(result, dict):
+                        # Get the actual output from the test result
+                        actual_output = result.get('actual', '')
+                        expected_output = test_case['expected_output']
+                        
+                        # Compare actual and expected outputs
+                        is_passed = actual_output == convert_to_string(expected_output)
+                        
+                        test_result = {
+                            'test_case': i + 1,
+                            'input': test_case['input'],
+                            'expected': expected_output,
+                            'actual': actual_output,
+                            'status': 'passed' if is_passed else 'failed'
+                        }
+                        
+                        if not is_passed:
+                            all_passed = False
+                            
+                        if 'error' in result:
+                            test_result['error'] = result['error']
+                            test_result['status'] = 'error'
+                            all_passed = False
+                            
+                    else:
+                        # Test failed with exception
+                        all_passed = False
+                        test_result = {
+                            'test_case': i + 1,
+                            'input': test_case['input'],
+                            'expected': test_case['expected_output'],
+                            'actual': str(result),
+                            'status': 'error',
+                            'error': str(result)
+                        }
+                    
+                    test_results.append(test_result)
+                    print(f"Test result {i+1}: {test_result}")  # Debug info
+                
+            except Exception as e:
+                # Handle test execution errors
+                error_message = f"Test execution error: {str(e)}"
+                print(f"Test execution error: {error_message}")  # Debug info
+                test_results = [{
+                    'status': 'error',
+                    'error': error_message
+                }]
+                all_passed = False
             
-            # Update solution status and results
+            # Update solution with results
             solution.status = 'passed' if all_passed else 'failed'
             solution.test_results = test_results
             solution.save()
             
         except Exception as e:
-            print(f"Error type: {type(e)}")  # Debug info
-            print(f"Error message: {str(e)}")  # Debug info
-            print(f"Traceback: {traceback.format_exc()}")  # Debug info
-            
+            # Handle file processing errors
+            error_message = f"File processing error: {str(e)}"
+            print(f"File processing error: {error_message}")  # Debug info
             solution.status = 'failed'
-            error_message = f"{type(e).__name__}: {str(e)}\n\nTraceback:\n{traceback.format_exc()}"
             solution.test_results = [{
-                'error': error_message,
-                'status': 'error'
+                'status': 'error',
+                'error': error_message
             }]
             solution.save()
         
@@ -156,3 +176,4 @@ def task_detail(request, task_id):
         'task': task,
         'solutions': solutions
     })
+

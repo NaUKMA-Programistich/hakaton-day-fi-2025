@@ -20,10 +20,9 @@ def run_one_test(input_str, expected_output, program_path, timeout=5, strip=Fals
 		# print(actual_output)
 		# print(expected_output)
 		# print()
-		if actual_output == expected_output: return True
-		return {"expected": expected_output, "actual": actual_output}
+		return {"expected": expected_output, "actual": actual_output, "passed": actual_output == expected_output}
 	except Exception as e:
-		return e
+		return {"error": str(e), "passed": False}
 
 
 # returns an array for each program
