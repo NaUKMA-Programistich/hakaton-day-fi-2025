@@ -20,11 +20,16 @@ def run_one_test(input_str, expected_output, program_path, timeout=5, strip=Fals
 		# print(actual_output)
 		# print(expected_output)
 		# print()
-		return actual_output == expected_output
-	except Exception:
-		return False
+		if actual_output == expected_output: return True
+		return {"expected": expected_output, "actual": actual_output}
+	except Exception as e:
+		return e
 
 
+# returns an array for each program
+# the arrays have True for the input where it worked correctly,
+# an Exception if it crashed, and a dict with keys "expected" and "actual"
+# if it's wrong
 def run_tests(inputs: list[str], outputs: list[str], program_paths: list[str], timeout=5, strip=False):
 	results = []
 	for path in program_paths:
