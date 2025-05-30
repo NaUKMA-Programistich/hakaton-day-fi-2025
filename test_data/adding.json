@@ -1,0 +1,45 @@
+{
+  "desk": "adding numbers",
+  "tasks": [
+    {
+      "input": "3 11",
+      "output": "14"
+    },
+    {
+      "input": "7 5",
+      "output": "12"
+    },
+    {
+      "input": "10 0",
+      "output": "10"
+    },
+    {
+      "input": "25 17",
+      "output": "42"
+    },
+    {
+      "input": "100 200",
+      "output": "300"
+    },
+    {
+      "input": "8 9",
+      "output": "17"
+    },
+    {
+      "input": "50 50",
+      "output": "100"
+    },
+    {
+      "input": "123 456",
+      "output": "579"
+    },
+    {
+      "input": "1 99",
+      "output": "100"
+    },
+    {
+      "input": "0 0",
+      "output": "0"
+    }
+  ]
+}

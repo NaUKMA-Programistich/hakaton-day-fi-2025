@@ -1,0 +1,25 @@
+{
+  "desk": "reverse words",
+  "tasks": [
+    {
+      "input": "dadd",
+      "output": "ddad"
+    },
+    {
+      "input": "hello",
+      "output": "olleh"
+    },
+    {
+      "input": "12345",
+      "output": "54321"
+    },
+    {
+      "input": "racecar",
+      "output": "racecar"
+    },
+    {
+      "input": "openai",
+      "output": "ianepo"
+    }
+  ]
+}

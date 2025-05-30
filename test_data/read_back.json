@@ -1,0 +1,45 @@
+{
+  "desk": "read backwards",
+  "tasks": [
+    {
+      "input": "level",
+      "output": "true"
+    },
+    {
+      "input": "hello",
+      "output": "false"
+    },
+    {
+      "input": "12321",
+      "output": "true"
+    },
+    {
+      "input": "python",
+      "output": "false"
+    },
+    {
+      "input": "racecar",
+      "output": "true"
+    },
+    {
+      "input": "openai",
+      "output": "false"
+    },
+    {
+      "input": "madam",
+      "output": "true"
+    },
+    {
+      "input": "world",
+      "output": "false"
+    },
+    {
+      "input": "noon",
+      "output": "true"
+    },
+    {
+      "input": "test",
+      "output": "false"
+    }
+  ]
+}
