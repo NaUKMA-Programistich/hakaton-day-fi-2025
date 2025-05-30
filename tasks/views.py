@@ -80,14 +80,13 @@ def task_detail(request, task_id):
             expected_outputs = []
             
             # Process test cases
-            for test_case in test_cases:
-                # Convert input to string format
-                input_str = convert_to_string(test_case['input'])
-                # Convert expected output to string format
-                expected_str = convert_to_string(test_case['expected_output'])
+            for test_name, test_data in test_cases.items():
+                # Get input and expected output
+                input_str = test_data['input']
+                expected_output = test_data['expected_output']
                 
                 inputs.append(input_str)
-                expected_outputs.append(expected_str)
+                expected_outputs.append(str(expected_output))
             
             print(f"Processed inputs: {inputs}")  # Debug info
             print(f"Expected outputs: {expected_outputs}")  # Debug info
@@ -102,20 +101,20 @@ def task_detail(request, task_id):
                 print(f"Raw test results: {results}")  # Debug info
                 
                 # Process results for each test case
-                for i, result in enumerate(results[0]):
-                    test_case = test_cases[i]
+                for i, (test_name, test_data) in enumerate(test_cases.items()):
+                    result = results[0][i]
                     
                     if isinstance(result, dict):
                         # Get the actual output from the test result
                         actual_output = result.get('actual', '')
-                        expected_output = test_case['expected_output']
+                        expected_output = test_data['expected_output']
                         
                         # Compare actual and expected outputs
-                        is_passed = actual_output == convert_to_string(expected_output)
+                        is_passed = actual_output == str(expected_output)
                         
                         test_result = {
                             'test_case': i + 1,
-                            'input': test_case['input'],
+                            'input': test_data['input'],
                             'expected': expected_output,
                             'actual': actual_output,
                             'status': 'passed' if is_passed else 'failed'
@@ -134,8 +133,8 @@ def task_detail(request, task_id):
                         all_passed = False
                         test_result = {
                             'test_case': i + 1,
-                            'input': test_case['input'],
-                            'expected': test_case['expected_output'],
+                            'input': test_data['input'],
+                            'expected': test_data['expected_output'],
                             'actual': str(result),
                             'status': 'error',
                             'error': str(result)
