@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row">
     <div class="col-md-8 offset-md-2">
-        <div class="card animate__animated animate__fadeIn">
+        <div class="card animate__animated animate__fadeIn" style="animation-duration: 0.3s">
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="bi bi-plus-circle me-2"></i>
@@ -17,7 +17,7 @@
                         {{ error }}
                     </div>
                 {% endif %}
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-4">
                         <label for="title" class="form-label">
@@ -41,21 +41,54 @@
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label for="test_cases" class="form-label">
+                        <label class="form-label">
                             <i class="bi bi-check2-square me-2"></i>
-                            Test Cases (JSON format)
+                            Test Cases
                         </label>
-                        <textarea class="form-control font-monospace" id="test_cases" 
-                                  name="test_cases" rows="6" 
-                                  placeholder='{
+                        <div class="card bg-dark bg-opacity-50 mb-3">
+                            <div class="card-body">
+                                <ul class="nav nav-tabs" id="testCasesTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" 
+                                                data-bs-target="#text" type="button" role="tab">
+                                            <i class="bi bi-pencil-square me-2"></i>
+                                            Text Input
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="file-tab" data-bs-toggle="tab" 
+                                                data-bs-target="#file" type="button" role="tab">
+                                            <i class="bi bi-file-earmark-code me-2"></i>
+                                            File Upload
+                                        </button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content mt-3" id="testCasesTabContent">
+                                    <div class="tab-pane fade show active" id="text" role="tabpanel">
+                                        <textarea class="form-control font-monospace" id="test_cases" 
+                                                  name="test_cases" rows="6" 
+                                                  placeholder='{
   "test1": {
     "input": [1, 2, 3],
     "expected": 6
   }
 }'>{{ test_cases|default:'{}' }}</textarea>
-                        <div class="form-text text-muted">
-                            <i class="bi bi-code-slash me-1"></i>
-                            Enter test cases in JSON format. Each test case should have input and expected output.
+                                    </div>
+                                    <div class="tab-pane fade" id="file" role="tabpanel">
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" id="test_cases_file" 
+                                                   name="test_cases_file" accept=".json">
+                                            <label class="input-group-text" for="test_cases_file">
+                                                <i class="bi bi-upload"></i>
+                                            </label>
+                                        </div>
+                                        <div class="form-text text-muted mt-2">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Upload a JSON file containing test cases. The file should follow the same format as the text input.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between">
@@ -73,4 +106,30 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle file upload preview
+    const fileInput = document.getElementById('test_cases_file');
+    const textArea = document.getElementById('test_cases');
+    
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    // Validate JSON format
+                    const jsonContent = JSON.parse(e.target.result);
+                    textArea.value = JSON.stringify(jsonContent, null, 2);
+                } catch (error) {
+                    alert('Invalid JSON file: ' + error.message);
+                    fileInput.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+});
+</script>
 {% endblock %} 

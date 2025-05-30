@@ -19,8 +19,7 @@
                     <div class="list-group">
                         {% for task in tasks %}
                             <a href="{% url 'task_detail' task.id %}" 
-                               class="list-group-item list-group-item-action animate__animated animate__fadeInUp"
-                               style="animation-duration: 0.3s; animation-delay: {{ forloop.counter }}50ms">
+                               class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">
                                         <i class="bi bi-code-slash me-2"></i>
@@ -46,7 +45,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <div class="text-center py-5 animate__animated animate__fadeIn" style="animation-duration: 0.3s">
+                    <div class="text-center py-5">
                         <i class="bi bi-emoji-smile display-1 text-muted mb-3"></i>
                         <p class="lead">No challenges yet. Add your first coding challenge!</p>
                         <a href="{% url 'add_task' %}" class="btn btn-primary mt-3">
